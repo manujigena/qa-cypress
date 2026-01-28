@@ -7,4 +7,4 @@ Instalar las dependecias `npm install`
 
 ## Como usar
 Usar `npm run cy:open` para iniciar la interfaz de cypress  
-Usar `npm run cy:run` para ejecutar los casos headless
+Usar `npm run cy:run` para ejecutar los casos de manera headless
