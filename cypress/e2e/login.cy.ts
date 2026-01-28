@@ -1,3 +1,5 @@
+import { loginPage } from "../support/pages/LoginPage"
+
 describe('Autenticacion en Dex Manager', () => {
   beforeEach(() => {
     cy.clearCookies()
@@ -8,28 +10,26 @@ describe('Autenticacion en Dex Manager', () => {
 
   it('Hacer login con credenciales validas', () => {    
     cy.url().should("include", "/DexFrontEnd");
-    cy.get("#logo").should("be.visible");    
+    cy.get("#logo").should("be.visible");
     cy.intercept('POST', 'https://demo4.dexmanager.com/DexFrontEnd/Login').as("login");
-    
-    cy.get("#input-1").type("challengeqa");
-    cy.get("#input-2").type("Abcd1234");
-    cy.get(".accept-btn").click();
-    cy.wait("@login");    
+    loginPage.signIn("challengeqa", "Abcd1234");
+    cy.wait("@login");
+
     cy.url().should("include", "/dashboard");
     cy.get(".background-item").should("be.visible");
-    cy.pause();
+    cy.get("[title='ARG - CHALLENGE']").should("be.visible");
   })
 
   it('No hacer login con password incorrecto', () => {
     cy.url().should("include", "/DexFrontEnd");
     cy.get("#logo").should("be.visible");
 
-    cy.get("#input-1").type("challengeqa");
-    cy.get("#input-2").type("Test1234");
-    cy.get(".accept-btn").click();
-        
-    cy.get("#dialogMsg").find("span").should("include.text", "Usuario o contraseña incorrecta.");
-    cy.get("#dialogMsg").find(".buttons").click();    
+    cy.intercept('POST', 'https://demo4.dexmanager.com/DexFrontEnd/Login').as("login");
+    loginPage.signIn("challengeqa", "Test1234");
+    cy.wait("@login");
+
+    loginPage.getTextModal().should("be.visible").and("include.text", "Usuario o contraseña incorrecta.");
+    loginPage.clickConfirmModal().click();
   })
 
   it('No hacer login con usuario inexistente', () => {
@@ -37,13 +37,11 @@ describe('Autenticacion en Dex Manager', () => {
     cy.get("#logo").should("be.visible");
     
     cy.intercept('POST', 'https://demo4.dexmanager.com/DexFrontEnd/Login').as("login");
-    cy.get("#input-1").type("usuari1230");
-    cy.get("#input-2").type("Abcd1234");    
-    cy.get(".accept-btn").click();
+    loginPage.signIn("usuari1230", "Abcd1234");    
     cy.wait("@login");
 
-    cy.get("#dialogMsg").find("span").should("include.text", "Usuario o contraseña incorrecta.")
-    cy.get("#dialogMsg").find(".buttons").click()
+    loginPage.getTextModal().should("be.visible").and("include.text", "Usuario o contraseña incorrecta.");
+    loginPage.clickConfirmModal().click();
   })
   
   it('No hacer login sin completar ningun campo', () => {
